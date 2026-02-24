@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>総社南高校 面接練習アプリ</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      font-size: 18px;
+      background: #f0f4f8;
+      color: #1a2a3a;
+      min-height: 100vh;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: 24px 20px 40px;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* ===== START SCREEN ===== */
+    #screen-start {
+      justify-content: center;
+      background: linear-gradient(160deg, #1a3a5c 0%, #2a5f9e 100%);
+    }
+
+    .start-inner {
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+
+    .app-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .app-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .app-subtitle {
+      font-size: 16px;
+      color: #a8c8e8;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 24px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    }
+
+    .card label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #4a6a8a;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+
+    .card input[type="password"],
+    .card input[type="text"] {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 16px;
+      border: 2px solid #c8d8e8;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 20px;
+      color: #1a2a3a;
+    }
+
+    .card input:focus {
+      border-color: #2a5f9e;
+    }
+
+    .card .hint {
+      font-size: 13px;
+      color: #7a9ab8;
+      text-align: left;
+      margin-top: -14px;
+      margin-bottom: 20px;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display: block;
+      width: 100%;
+      min-height: 52px;
+      padding: 14px 20px;
+      font-size: 18px;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      text-align: center;
+    }
+
+    .btn:active {
+      opacity: 0.8;
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2a5f9e, #1a4a7e);
+      color: #fff;
+    }
+
+    .btn-primary:disabled {
+      background: #a0b8d0;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #2e7d52, #1e6040);
+      color: #fff;
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: #2a5f9e;
+      border: 2px solid #2a5f9e;
+    }
+
+    .btn-mic {
+      width: 72px;
+      height: 72px;
+      min-height: 72px;
+      border-radius: 50%;
+      font-size: 28px;
+      padding: 0;
+      background: linear-gradient(135deg, #2a5f9e, #1a4a7e);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .btn-mic.recording {
+      background: linear-gradient(135deg, #c0392b, #962d22);
+      animation: pulse 1s infinite;
+    }
+
+    .btn-mic:disabled {
+      background: #a0b8d0;
+      cursor: not-allowed;
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(192,57,43,0.5); }
+      70%  { box-shadow: 0 0 0 14px rgba(192,57,43,0); }
+      100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); }
+    }
+
+    /* ===== INTERVIEW SCREEN ===== */
+    #screen-interview {
+      background: #f0f4f8;
+      justify-content: flex-start;
+    }
+
+    .interview-inner {
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .progress-bar-wrap {
+      background: #c8d8e8;
+      border-radius: 99px;
+      height: 8px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #2a5f9e, #4a8fce);
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    .question-counter {
+      font-size: 14px;
+      font-weight: 600;
+      color: #4a6a8a;
+      margin-bottom: 12px;
+    }
+
+    .question-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      border-left: 5px solid #2a5f9e;
+    }
+
+    .question-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2a5f9e;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+
+    .question-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a2a3a;
+      line-height: 1.5;
+    }
+
+    .answer-section {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    .answer-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    textarea {
+      flex: 1;
+      padding: 14px;
+      font-size: 18px;
+      border: 2px solid #c8d8e8;
+      border-radius: 10px;
+      outline: none;
+      resize: vertical;
+      min-height: 120px;
+      font-family: inherit;
+      color: #1a2a3a;
+      transition: border-color 0.2s;
+      line-height: 1.6;
+    }
+
+    textarea:focus {
+      border-color: #2a5f9e;
+    }
+
+    .mic-status {
+      font-size: 14px;
+      color: #4a6a8a;
+      min-height: 22px;
+      text-align: center;
+    }
+
+    .mic-status.recording {
+      color: #c0392b;
+      font-weight: 600;
+    }
+
+    .mic-status.error {
+      color: #c0392b;
+    }
+
+    /* ===== FEEDBACK SCREEN ===== */
+    #screen-feedback {
+      background: #f0f4f8;
+      justify-content: flex-start;
+    }
+
+    .feedback-inner {
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .feedback-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a2a3a;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .feedback-subtitle {
+      font-size: 15px;
+      color: #4a6a8a;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .feedback-item {
+      background: #fff;
+      border-radius: 16px;
+      padding: 22px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    .feedback-q-num {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2a5f9e;
+      margin-bottom: 6px;
+    }
+
+    .feedback-q-text {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a2a3a;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e4edf5;
+    }
+
+    .feedback-answer {
+      font-size: 16px;
+      color: #3a5a7a;
+      background: #f5f8fb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 14px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .feedback-answer-label {
+      font-size: 13px;
+      color: #4a6a8a;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .feedback-section {
+      margin-bottom: 12px;
+    }
+
+    .feedback-section-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .good .feedback-section-title { color: #1e7e44; }
+    .improve .feedback-section-title { color: #c06010; }
+
+    .feedback-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .feedback-list li {
+      font-size: 16px;
+      line-height: 1.6;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    .good .feedback-list li {
+      background: #eafaf0;
+      color: #1a5a30;
+      border-left: 3px solid #2ecc71;
+    }
+
+    .improve .feedback-list li {
+      background: #fff5e6;
+      color: #7a3a00;
+      border-left: 3px solid #f39c12;
+    }
+
+    .feedback-loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: #4a6a8a;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #c8d8e8;
+      border-top-color: #2a5f9e;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== ERROR TOAST ===== */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #c0392b;
+      color: #fff;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      max-width: calc(100% - 40px);
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease;
+      z-index: 999;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===== HEADER ===== */
+    .screen-header {
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 20px;
+    }
+
+    .screen-header-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #2a5f9e;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== スタート画面 ===== -->
+<div id="screen-start" class="screen active">
+  <div class="start-inner">
+    <div class="app-icon">🎓</div>
+    <div class="app-title">総社南高校<br>面接練習アプリ</div>
+    <div class="app-subtitle">AIがあなたの回答にフィードバックします</div>
+    <div class="card">
+      <label for="api-key">Claude API キー</label>
+      <input type="password" id="api-key" placeholder="sk-ant-..." autocomplete="off" autocorrect="off" spellcheck="false">
+      <p class="hint">※ APIキーはこの画面を閉じると消去されます</p>
+      <button class="btn btn-primary" id="btn-start" onclick="startInterview()">練習を始める →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 面接練習画面 ===== -->
+<div id="screen-interview" class="screen">
+  <div class="interview-inner">
+    <div class="screen-header">
+      <div class="screen-header-title">🏫 総社南高校 面接練習</div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="question-counter" id="question-counter"></div>
+
+    <div class="question-card">
+      <div class="question-label">面接官の質問</div>
+      <div class="question-text" id="question-text"></div>
+    </div>
+
+    <div class="answer-section">
+      <div class="answer-row">
+        <textarea id="answer-input" placeholder="ここに回答を入力してください。&#10;音声ボタンを押して話すこともできます。" rows="5"></textarea>
+        <button class="btn-mic" id="btn-mic" title="音声入力">🎤</button>
+      </div>
+      <div class="mic-status" id="mic-status"></div>
+    </div>
+
+    <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()">次の質問へ →</button>
+  </div>
+</div>
+
+<!-- ===== フィードバック画面 ===== -->
+<div id="screen-feedback" class="screen">
+  <div class="feedback-inner">
+    <div class="screen-header">
+      <div class="screen-header-title">🏫 総社南高校 面接練習</div>
+    </div>
+
+    <div id="feedback-loading" class="feedback-loading">
+      <div class="spinner"></div>
+      <div>AIがフィードバックを作成しています…<br>しばらくお待ちください</div>
+    </div>
+
+    <div id="feedback-content" style="display:none;">
+      <div class="feedback-title">📝 フィードバック結果</div>
+      <div class="feedback-subtitle">AIによる評価をご確認ください</div>
+      <div id="feedback-list"></div>
+      <button class="btn btn-outline" style="margin-top:8px; margin-bottom:16px;" onclick="restartInterview()">🔄 もう一度練習する</button>
+    </div>
+  </div>
+</div>
+
+<!-- トースト通知 -->
+<div id="toast"></div>
+
+<script>
+  // ===== 定数 =====
+  const QUESTIONS = [
+    '志望理由を教えてください。',
+    '中学校で頑張ったことは何ですか？',
+    '高校に入ったらどんな部活に入りたいですか？',
+    '国際系と人文系、どちらに進みたいですか？',
+    '英語を活かしてどんなことをしたいですか？',
+    '自己PRをしてください。',
+    '総社南高校のどんなところに魅力を感じましたか？',
+    '高校卒業後の進路についてどのように考えていますか？',
+  ];
+
+  const SYSTEM_PROMPT = `あなたは高校入試の面接指導の専門家です。
+受験生（中学3年生の女子）の面接回答を評価してください。
+
+受験生のプロフィール：
+- 志望校：総社南高校（岡山県）普通科
+- 強み：言葉の力（英語・国語）
+- 英検準2級取得済み、2級挑戦予定
+- 小中学校で作文の受賞歴あり
+- 2年次に国際系または人文系を選択予定
+- 中学ではソフトテニス部に所属
+
+志望理由（参考）：
+総社南高校を志望した理由は、オープンスクールと文化祭で感じた「生徒一人ひとりが自分の考えをしっかり持っている」雰囲気に強く惹かれたからです。私は小中学校を通じて言葉の力を磨くことに取り組み、作文では賞をいただいた経験もあり、英語検定準2級も取得しました。貴校には2年次から国際系・人文系を選択できる仕組みがあり、言葉の力をさらに伸ばしながら進路を見定められる環境だと感じています。高校では新しい部活にも挑戦し、英検2級取得と大学進学に向けた学力向上にも取り組みながら、2年次の系統選択も含めて3年間で自分の方向性をじっくり定めていきたいと思っています。
+
+評価の観点：
+- 具体性（実績・エピソードが含まれているか）
+- 一貫性（志望理由や強みと矛盾していないか）
+- 自分の言葉で話せているか
+- 簡潔にまとまっているか
+
+出力形式（JSON）：
+{
+  "good_points": ["良い点1", "良い点2"],
+  "improvements": ["改善点1", "改善点2"]
+}
+
+必ず日本語で、中学生にわかりやすい言葉で出力してください。
+JSON以外の文字は出力しないでください。`;
+
+  // ===== 状態 =====
+  let apiKey = '';
+  let currentIndex = 0;
+  let answers = [];
+  let recognition = null;
+  let isRecording = false;
+  let speechSupported = false;
+
+  // ===== 音声認識の初期化 =====
+  function initSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      speechSupported = false;
+      document.getElementById('btn-mic').style.display = 'none';
+      return;
+    }
+    speechSupported = true;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'ja-JP';
+    recognition.continuous = false;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+      isRecording = true;
+      document.getElementById('btn-mic').classList.add('recording');
+      document.getElementById('btn-mic').textContent = '⏹';
+      setMicStatus('録音中… 話し終わったらボタンを押してください', 'recording');
+    };
+
+    recognition.onresult = (event) => {
+      let interim = '';
+      let final = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const t = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          final += t;
+        } else {
+          interim += t;
+        }
+      }
+      const ta = document.getElementById('answer-input');
+      if (final) {
+        ta.value = (ta.value + final).trim();
+      } else if (interim) {
+        setMicStatus('認識中: ' + interim, 'recording');
+      }
+    };
+
+    recognition.onend = () => {
+      isRecording = false;
+      document.getElementById('btn-mic').classList.remove('recording');
+      document.getElementById('btn-mic').textContent = '🎤';
+      setMicStatus('音声入力が終わりました。必要に応じて修正してください。', '');
+    };
+
+    recognition.onerror = (event) => {
+      isRecording = false;
+      document.getElementById('btn-mic').classList.remove('recording');
+      document.getElementById('btn-mic').textContent = '🎤';
+      const msgs = {
+        'not-allowed': 'マイクの使用が許可されていません。設定を確認してください。',
+        'no-speech': '音声が検出されませんでした。もう一度お試しください。',
+        'network': 'ネットワークエラーが発生しました。',
+      };
+      setMicStatus(msgs[event.error] || '音声認識エラー: ' + event.error, 'error');
+    };
+  }
+
+  function setMicStatus(msg, type) {
+    const el = document.getElementById('mic-status');
+    el.textContent = msg;
+    el.className = 'mic-status' + (type ? ' ' + type : '');
+  }
+
+  // ===== 画面切替 =====
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  // ===== スタート =====
+  function startInterview() {
+    const key = document.getElementById('api-key').value.trim();
+    if (!key) {
+      showToast('APIキーを入力してください');
+      return;
+    }
+    apiKey = key;
+    currentIndex = 0;
+    answers = new Array(QUESTIONS.length).fill('');
+    initSpeechRecognition();
+    showScreen('screen-interview');
+    renderQuestion();
+  }
+
+  // ===== 質問の表示 =====
+  function renderQuestion() {
+    const total = QUESTIONS.length;
+    const idx = currentIndex;
+
+    document.getElementById('question-counter').textContent = `質問 ${idx + 1} / ${total}`;
+    document.getElementById('question-text').textContent = QUESTIONS[idx];
+    document.getElementById('progress-bar').style.width = `${((idx) / total) * 100}%`;
+    document.getElementById('answer-input').value = answers[idx] || '';
+
+    const btnNext = document.getElementById('btn-next');
+    if (idx === total - 1) {
+      btnNext.textContent = 'フィードバックを見る ✓';
+      btnNext.className = 'btn btn-success';
+    } else {
+      btnNext.textContent = '次の質問へ →';
+      btnNext.className = 'btn btn-primary';
+    }
+
+    setMicStatus(speechSupported ? '🎤 ボタンを押して音声入力できます' : '', '');
+    if (isRecording) {
+      recognition.stop();
+    }
+  }
+
+  // ===== マイクボタン =====
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('btn-mic').addEventListener('click', () => {
+      if (!speechSupported) return;
+      if (isRecording) {
+        recognition.stop();
+      } else {
+        try {
+          recognition.start();
+        } catch (e) {
+          setMicStatus('音声認識を開始できませんでした。再度お試しください。', 'error');
+        }
+      }
+    });
+  });
+
+  // ===== 次の質問へ =====
+  function nextQuestion() {
+    const answer = document.getElementById('answer-input').value.trim();
+    if (!answer) {
+      showToast('回答を入力してから次に進んでください');
+      return;
+    }
+    answers[currentIndex] = answer;
+
+    if (currentIndex < QUESTIONS.length - 1) {
+      currentIndex++;
+      renderQuestion();
+    } else {
+      // 全問終了 → フィードバック画面へ
+      showScreen('screen-feedback');
+      fetchAllFeedback();
+    }
+  }
+
+  // ===== Claude API呼び出し（1問分） =====
+  async function fetchFeedbackForOne(question, answer) {
+    const userContent = `質問：${question}\n\n回答：${answer}`;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 512,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userContent }],
+      }),
+    });
+
+    if (!resp.ok) {
+      const errBody = await resp.json().catch(() => ({}));
+      const msg = errBody?.error?.message || resp.statusText;
+      throw new Error(`APIエラー (${resp.status}): ${msg}`);
+    }
+
+    const data = await resp.json();
+    const text = data.content?.[0]?.text || '';
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      // JSONパース失敗時はテキストをそのまま表示
+      return { good_points: [], improvements: [], raw: text };
+    }
+  }
+
+  // ===== 全問フィードバック取得 =====
+  async function fetchAllFeedback() {
+    document.getElementById('feedback-loading').style.display = 'block';
+    document.getElementById('feedback-content').style.display = 'none';
+
+    const results = [];
+    let hasError = false;
+
+    for (let i = 0; i < QUESTIONS.length; i++) {
+      try {
+        const fb = await fetchFeedbackForOne(QUESTIONS[i], answers[i]);
+        results.push(fb);
+      } catch (e) {
+        results.push({ error: e.message });
+        hasError = true;
+      }
+    }
+
+    document.getElementById('feedback-loading').style.display = 'none';
+    renderFeedback(results);
+    document.getElementById('feedback-content').style.display = 'block';
+
+    if (hasError) {
+      showToast('一部の質問でフィードバックの取得に失敗しました');
+    }
+  }
+
+  // ===== フィードバックの表示 =====
+  function renderFeedback(results) {
+    const container = document.getElementById('feedback-list');
+    container.innerHTML = '';
+
+    results.forEach((fb, i) => {
+      const item = document.createElement('div');
+      item.className = 'feedback-item';
+
+      let html = `
+        <div class="feedback-q-num">質問 ${i + 1} / ${QUESTIONS.length}</div>
+        <div class="feedback-q-text">${escapeHtml(QUESTIONS[i])}</div>
+        <div class="feedback-answer-label">あなたの回答</div>
+        <div class="feedback-answer">${escapeHtml(answers[i])}</div>
+      `;
+
+      if (fb.error) {
+        html += `<div style="color:#c0392b; font-size:15px;">⚠️ フィードバックの取得に失敗しました：${escapeHtml(fb.error)}</div>`;
+      } else if (fb.raw) {
+        html += `<div style="font-size:15px; color:#3a5a7a; white-space:pre-wrap;">${escapeHtml(fb.raw)}</div>`;
+      } else {
+        if (fb.good_points && fb.good_points.length > 0) {
+          html += `<div class="feedback-section good">
+            <div class="feedback-section-title">✅ 良い点</div>
+            <ul class="feedback-list">
+              ${fb.good_points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}
+            </ul>
+          </div>`;
+        }
+        if (fb.improvements && fb.improvements.length > 0) {
+          html += `<div class="feedback-section improve">
+            <div class="feedback-section-title">💡 改善のヒント</div>
+            <ul class="feedback-list">
+              ${fb.improvements.map(p => `<li>${escapeHtml(p)}</li>`).join('')}
+            </ul>
+          </div>`;
+        }
+      }
+
+      item.innerHTML = html;
+      container.appendChild(item);
+    });
+  }
+
+  // ===== もう一度練習 =====
+  function restartInterview() {
+    apiKey = '';
+    currentIndex = 0;
+    answers = [];
+    document.getElementById('api-key').value = '';
+    document.getElementById('feedback-list').innerHTML = '';
+    showScreen('screen-start');
+  }
+
+  // ===== トースト通知 =====
+  let toastTimer = null;
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+  }
+
+  // ===== GitHub Pages デプロイ手順（コンソール出力） =====
+  console.log([
+    '=== 総社南高校 面接練習アプリ デプロイ手順 ===',
+    '1. GitHub で "interview-app" リポジトリを Public で作成',
+    '2. git init && git add index.html && git commit -m "initial commit"',
+    '3. git remote add origin https://github.com/<ユーザー名>/interview-app.git',
+    '4. git push -u origin main',
+    '5. Settings → Pages → Source を "main" ブランチに設定',
+    '6. https://<ユーザー名>.github.io/interview-app/ にアクセス',
+    '7. iPhoneのSafariで動作確認（初回マイク許可ダイアログあり）',
+  ].join('\n'));
+
+  // ===== HTML エスケープ =====
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+</script>
+</body>
+</html>
