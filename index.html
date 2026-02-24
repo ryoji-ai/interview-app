@@ -705,6 +705,17 @@ JSON以外の文字は出力しないでください。`;
         }
       }
     });
+
+    // ===== URLハッシュからAPIキーを自動読み込み =====
+    const hashKey = window.location.hash.replace(/^#/, '').trim();
+    if (hashKey.startsWith('sk-ant-')) {
+      apiKey = hashKey;
+      currentIndex = 0;
+      answers = new Array(QUESTIONS.length).fill('');
+      initSpeechRecognition();
+      showScreen('screen-interview');
+      renderQuestion();
+    }
   });
 
   // ===== 次の質問へ =====
@@ -836,12 +847,22 @@ JSON以外の文字は出力しないでください。`;
 
   // ===== もう一度練習 =====
   function restartInterview() {
-    apiKey = '';
     currentIndex = 0;
     answers = [];
-    document.getElementById('api-key').value = '';
     document.getElementById('feedback-list').innerHTML = '';
-    showScreen('screen-start');
+
+    // URLハッシュにAPIキーがあればそのまま練習画面へ戻る
+    const hashKey = window.location.hash.replace(/^#/, '').trim();
+    if (hashKey.startsWith('sk-ant-')) {
+      apiKey = hashKey;
+      answers = new Array(QUESTIONS.length).fill('');
+      showScreen('screen-interview');
+      renderQuestion();
+    } else {
+      apiKey = '';
+      document.getElementById('api-key').value = '';
+      showScreen('screen-start');
+    }
   }
 
   // ===== トースト通知 =====
