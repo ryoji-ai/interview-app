@@ -766,8 +766,10 @@ JSON以外の文字は出力しないでください。`;
     const data = await resp.json();
     const text = data.content?.[0]?.text || '';
 
+    // マークダウンのコードブロック（```json ... ```）を除去してからパース
+    const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
     try {
-      return JSON.parse(text);
+      return JSON.parse(cleaned);
     } catch {
       // JSONパース失敗時はテキストをそのまま表示
       return { good_points: [], improvements: [], raw: text };
